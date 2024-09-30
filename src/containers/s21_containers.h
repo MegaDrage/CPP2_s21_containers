@@ -1,6 +1,6 @@
 #ifndef _CONTAINERS_S21_CONTAINERS_H
 #define _CONTAINERS_S21_CONTAINERS_H
 
+namespace s21_containers {}
 
-
-#endif // _CONTAINERS_S21_CONTAINERS_H
+#endif  // _CONTAINERS_S21_CONTAINERS_H
