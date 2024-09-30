@@ -7,6 +7,6 @@ all: s21_containers.h
 
 
 style-check:
-	find . -name "*.cpp" -o -name "*.h" | xargs clang-format -n -verbose --style=Google
+	find . -name "*.cpp" -o -name "*.h" | xargs clang-format -n -verbose -Werror --style=Google
 style:
 	find . -name "*.cpp" -o -name "*.h" | xargs clang-format -i -verbose --style=Google

@@ -1,0 +1,39 @@
+name: CICD for Containers
+
+on:
+  push:
+    branches: [ "release" ]
+  pull_request:
+    branches: [ "release" ]
+
+# jobs:
+#   build:
+#
+#     runs-on: ubuntu-latest
+#
+#     steps:
+#     - uses: actions/checkout@v4
+#
+#     - name: Install dependencies
+#       run: sudo apt install gcc make -y
+#
+#       working-directory: src/
+#
+#     - name: Run build
+#       run: cd src/modules/parser && make test
+#
+#     - name: Run all
+#       run: cd src && make
+
+jobs:
+  style-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: sudo apt install make clang-format-13 -y
+    - name: Run linting
+      run: cd src/ && make style-check
