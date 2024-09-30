@@ -1,0 +1,5 @@
+#ifndef _CONTAINERS_S21_MAP_H
+#define _CONTAINERS_S21_MAP_H
+
+
+#endif // _CONTAINERS_S21_MAP_H
