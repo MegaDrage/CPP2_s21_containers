@@ -23,6 +23,7 @@
               cppcheck
               gtest
               lcov
+              pkg-config
             ] ++ (if system == "aarch64-darwin" then [ ] else [ gdb ]);
           };
       });
