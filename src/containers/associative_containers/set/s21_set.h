@@ -1,5 +1,4 @@
 #ifndef _CONTAINERS_S21_SET_H
 #define _CONTAINERS_S21_SET_H
 
-
-#endif // _CONTAINERS_S21_SET_H
+#endif  // _CONTAINERS_S21_SET_H
