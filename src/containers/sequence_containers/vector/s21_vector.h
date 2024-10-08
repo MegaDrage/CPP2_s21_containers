@@ -1,11 +1,12 @@
 #ifndef _CONTAINERS_S21_VECTOR_H
 #define _CONTAINERS_S21_VECTOR_H
 
+#include <algorithm>
 #include <cstddef>
 #include <initializer_list>
-#include <iterator>
 #include <limits>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 namespace s21_containers {
@@ -129,37 +130,89 @@ public:
     }
     Allocator_Traits::destroy(_alloc, &(*pos));
     for (iterator it = pos; it != end() - 1; ++it) {
-      *it = *(it + 1);
+      *it = std::move(*(it + 1));
     }
     --_size;
   }
 
   iterator erase(const_iterator first, const_iterator last) {
-    if (first > end() || first < begin()) {
-      return;
+    if (first > end() || first < begin() || last > end() || last < first) {
+      return first;
     }
+
+    if (first == last) {
+      return first;
+    }
+
     if (last == end()) {
-      pop_back();
+      for (iterator it = first; it != last; ++it) {
+        Allocator_Traits::destroy(_alloc, &(*it));
+        --_size;
+      }
       return end();
     }
-    for (iterator it = first; it != end() - 1; ++it) {
-      *it = *(it + 1);
+
+    iterator new_end = std::copy(last, end(), first);
+
+    for (iterator it = new_end; it != end(); ++it) {
+      Allocator_Traits::destroy(_alloc, &(*it));
     }
-    --_size;
+
+    _size -= std::distance(first, last);
+
+    return iterator(first);
   }
-    
+
+  iterator insert(iterator pos, const_reference value) { emplace(pos, value); }
+  iterator insert(iterator pos, T &&value) {
+    emplace(pos, std::move_if_noexcept(value));
+  }
+
+  template <typename... Args>
+  iterator emplace(const_iterator pos, Args &&...args) {
+    if (pos > end() || pos < begin()) {
+      return pos;
+    }
+
+    if (pos == end()) {
+      emplace_back(std::forward<Args>(args)...);
+      return end();
+    }
+    size_type index = pos - begin();
+
+    if (_capacity <= _size) {
+      _reserve_n_emplace((_capacity == 0) ? 1 : _capacity * 2, index,
+                         std::forward<Args>(args)...);
+    } else {
+      Allocator_Traits::construct(_alloc, _array + _size,
+                                  std::move_if_noexcept(*(_array + _size - 1)));
+      for (auto it = end() - 1; it != pos; --it) {
+        *(it) = std::move(*(it - 1));
+      }
+      _place_into_memory(_array + index, std::forward<Args>(args)...);
+    }
+
+    ++_size;
+    return begin() + index;
+  }
+
   template <typename... Args> void emplace_back(Args &&...args) {
     if (_capacity <= _size) {
       _reserve_n_emplace_back((_capacity == 0) ? 1 : _capacity * 2,
                               std::forward<Args>(args)...);
     } else {
       _place_into_memory(_array + _size, std::forward<Args>(args)...);
-      ++_size;
     }
+    ++_size;
   }
 
-  void push_back(const T &value) { emplace_back(value); }
+  void push_back(const_reference &value) { emplace_back(value); }
   void push_back(T &&value) { emplace_back(std::move(value)); }
+
+  void shrink_to_fit() {
+    pointer newarr = Allocator_Traits::allocate(_alloc, _size);
+    _move_n(newarr, _size);
+  }
 
   /* OPERATORS */
   s21_vector &operator=(s21_vector &&v) {
@@ -202,13 +255,35 @@ private:
     pointer newarr = Allocator_Traits::allocate(_alloc, new_capacity);
     _place_into_memory(newarr + _size, std::forward<Args>(args)...);
     _move_n(newarr, new_capacity);
-    ++_size;
+  }
+  template <typename... Args>
+  void _reserve_n_emplace(size_type new_capacity, size_type &pos,
+                          Args &&...args) {
+    pointer newarr = Allocator_Traits::allocate(_alloc, new_capacity);
+    _place_into_memory(newarr + pos, std::forward<Args>(args)...);
+    _move_n_with_pos(newarr, pos, new_capacity);
   }
   void _move_n(pointer &newarr, size_type &new_capacity) {
     for (size_type i = 0; i < _size; ++i) {
       Allocator_Traits::construct(_alloc, newarr + i,
                                   std::move_if_noexcept(*(_array + i)));
       Allocator_Traits::destroy(_alloc, _array + i);
+    }
+    Allocator_Traits::deallocate(_alloc, _array, _capacity);
+    _array = newarr;
+    _capacity = new_capacity;
+  }
+  void _move_n_with_pos(pointer &newarr, size_type pos,
+                        size_type new_capacity) {
+    for (size_type i = 0; i < pos; ++i) {
+      Allocator_Traits::construct(_alloc, newarr + i,
+                                  std::move_if_noexcept(*(_array + i)));
+      Allocator_Traits::destroy(_alloc, _array + i);
+    }
+    for (size_type i = pos + 1; i < _size + 1; ++i) {
+      Allocator_Traits::construct(_alloc, newarr + i,
+                                  std::move_if_noexcept(*(_array + i - 1)));
+      Allocator_Traits::destroy(_alloc, _array + i - 1);
     }
     Allocator_Traits::deallocate(_alloc, _array, _capacity);
     _array = newarr;

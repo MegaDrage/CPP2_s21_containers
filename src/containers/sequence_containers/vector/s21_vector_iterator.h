@@ -1,6 +1,5 @@
 #ifndef _CONTAINERS_S21_VECTOR_ITERATOR_H
 #define _CONTAINERS_S21_VECTOR_ITERATOR_H
-
 #include <iterator>
 #include "s21_vector.h"
 

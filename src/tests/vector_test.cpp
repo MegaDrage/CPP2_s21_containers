@@ -254,6 +254,52 @@ TEST(s21_vectorTest, emplace_backTest2) {
   EXPECT_EQ(vec.capacity(), 4);
 }
 
+TEST(s21_vectorTest, emplace_backTest3) {
+  s21_vector<std::string> vec;
+  vec.emplace_back("10");
+  vec.emplace_back("20");
+  vec.emplace_back("30");
+  vec.emplace_back("40");
+  vec.emplace_back("50");
+  vec.emplace_back("60");
+  vec.emplace_back("70");
+  vec.emplace_back("80");
+  vec.emplace_back(vec[0]);
+  EXPECT_EQ(vec[0], vec.back());
+  EXPECT_EQ(vec.capacity(), 16);
+}
+
+TEST(s21_vectorTest, emplace_backTest4) {
+  s21_vector<std::vector<int>> vec;
+  vec.emplace_back(5, 10);
+  vec.emplace_back(6, 10);
+  vec.emplace_back(7, 10);
+  vec.emplace_back(8, 10);
+  vec.emplace_back(9, 10);
+  vec.emplace_back(10, 10);
+  vec.emplace_back(11, 10);
+  vec.emplace_back(12, 10);
+  vec.emplace_back(vec[0]);
+  EXPECT_EQ(vec[0], vec.back());
+  EXPECT_EQ(vec.capacity(), 16);
+}
+
+TEST(s21_vectorTest, emplace_backTest5) {
+  s21_vector<std::string> vec;
+  vec.emplace_back("10");
+  vec.emplace_back(vec[0]);
+  vec.emplace_back(vec[0]);
+  vec.emplace_back(vec[0]);
+  vec.emplace_back(vec[3]);
+  vec.emplace_back(vec[0]);
+  vec.emplace_back(vec[0]);
+  vec.emplace_back(vec[0]);
+  vec.emplace_back(vec[5]);
+  vec[2] = "100";
+  EXPECT_EQ(vec[0], vec.back());
+  EXPECT_EQ(vec.capacity(), 16);
+}
+
 TEST(s21_vectorTest, eraseTest) {
   s21_vector<std::string> p;
   p.push_back("10");
@@ -293,23 +339,175 @@ TEST(s21_vectorTest, eraseTest3) {
   auto pointer = p.begin();
   pointer++;
   p.erase(pointer);
-  for (size_t i = 0; i < p.size() + 2; ++i) {
-    std::cout << p[i];
-  }
-  EXPECT_EQ(p[1], "");
+  std::vector<std::string> vec;
+  vec.push_back("10");
+  vec.push_back("20");
+  vec.push_back("30");
+  auto pointer1 = vec.begin();
+  pointer1++;
+  vec.erase(pointer1);
+  EXPECT_EQ(p[0], vec[0]);
+  EXPECT_EQ(p[1], vec[1]);
 }
 
-TEST(s21_vectorTest, eraseTest4) {
-  std::vector<std::string> p;
+TEST(s21_vectorTest, multipleEraseTest) {
+  s21_vector<int> p;
+  p.push_back(10);
+  p.push_back(20);
+  p.push_back(30);
+  auto pointer = p.begin();
+  auto pointer1 = p.end();
+  pointer1++;
+  auto pointer2 = p.erase(pointer, pointer1);
+  EXPECT_EQ(*pointer2, 10);
+}
+
+TEST(s21_vectorTest, multipleEraseTest2) {
+  s21_vector<int> p;
+  p.push_back(10);
+  p.push_back(20);
+  p.push_back(30);
+  auto pointer = p.begin();
+  pointer++;
+  auto pointer1 = p.end();
+  auto pointer2 = p.erase(pointer, pointer1);
+  EXPECT_EQ(*pointer2, 20);
+}
+
+TEST(s21_vectorTest, multipleEraseTest3) {
+  s21_vector<int> p;
+  p.push_back(10);
+  p.push_back(20);
+  p.push_back(30);
+  p.push_back(40);
+  auto pointer = p.begin();
+  pointer++;
+  auto pointer1 = p.end();
+  pointer1--;
+  auto pointer2 = p.erase(pointer, pointer1);
+  EXPECT_EQ(*pointer2, 40);
+  EXPECT_EQ(p[1], 40);
+}
+
+TEST(s21_vectorTest, emplaceTest) {
+  s21_vector<int> p;
+  p.push_back(10);
+  p.push_back(20);
+  p.push_back(30);
+  p.push_back(40);
+  auto pointer = p.begin();
+  pointer++;
+  p.emplace(pointer, p[0]);
+  EXPECT_EQ(p[0], p[1]);
+}
+
+TEST(s21_vectorTest, emplaceTest2) {
+  s21_vector<std::string> p;
   p.push_back("10");
   p.push_back("20");
   p.push_back("30");
-  p.clear();
-  for (size_t i = 0; i < 3; ++i) {
-    std::cout << p[i];
-  }
-  EXPECT_EQ(p[1], "");
+  p.push_back("40");
+  p.push_back("50");
+  auto pointer = p.begin();
+  pointer++;
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  EXPECT_EQ(p[0], p[1]);
 }
+
+
+TEST(s21_vectorTest, emplaceTest3) {
+  s21_vector<std::string> p;
+  p.push_back("10");
+  p.push_back("20");
+  p.push_back("30");
+  p.push_back("40");
+  auto pointer = p.begin();
+  pointer++;
+  p.emplace(pointer, p[0]);
+  EXPECT_EQ(p[0], p[1]);
+}
+
+TEST(s21_vectorTest, emplaceTest4) {
+  s21_vector<std::string> p;
+  p.push_back("10");
+  p.push_back("20");
+  p.push_back("30");
+  p.push_back("40");
+  p.push_back("50");
+  auto pointer = p.begin();
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  EXPECT_EQ(p[0], p[1]);
+}
+
+TEST(s21_vectorTest, emplaceTest5) {
+  s21_vector<std::string> p;
+  p.push_back("10");
+  p.push_back("20");
+  p.push_back("30");
+  p.push_back("40");
+  p.push_back("50");
+  auto pointer = p.end();
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  p.emplace(pointer, p[0]);
+  EXPECT_EQ(p[0], p[p.size() - 1]);
+}
+
+TEST(s21_vectorTest, shrink_to_fitTest) {
+  s21_vector<int> p;
+  p.push_back(10);
+  p.push_back(20);
+  p.push_back(30);
+  p.push_back(40);
+  auto pointer = p.begin();
+  pointer++;
+  p.emplace(pointer, p[0]);
+  p.shrink_to_fit();
+  EXPECT_EQ(p.capacity(), 5);
+}
+
+TEST(s21_vectorTest, shrink_to_fitTest2) {
+  s21_vector<std::string> p;
+  p.push_back("10");
+  p.push_back("20");
+  p.push_back("30");
+  p.push_back("40");
+  p.push_back("50");
+  p.shrink_to_fit();
+  EXPECT_EQ(p.capacity(), 5);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
