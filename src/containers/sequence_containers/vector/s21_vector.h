@@ -10,21 +10,173 @@
 #include <utility>
 
 namespace s21_containers {
+
+namespace __iterator {
+template <typename T, typename Allocator>
+class VectorIterator {
+ public:
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = T;
+  using difference_type = std::ptrdiff_t;
+  using pointer = typename std::allocator_traits<Allocator>::pointer;
+  using reference = T &;
+
+  VectorIterator() : ptr(nullptr) {}
+  VectorIterator(pointer p) : ptr(p) {}
+
+  reference operator*() const { return *ptr; }
+  pointer operator->() const { return ptr; }
+
+  VectorIterator &operator++() {
+    ++ptr;
+    return *this;
+  }
+  VectorIterator operator++(int) {
+    VectorIterator tmp = *this;
+    ++ptr;
+    return tmp;
+  }
+
+  VectorIterator &operator--() {
+    --ptr;
+    return *this;
+  }
+  VectorIterator operator--(int) {
+    VectorIterator tmp = *this;
+    --ptr;
+    return tmp;
+  }
+
+  VectorIterator &operator+=(difference_type n) {
+    ptr += n;
+    return *this;
+  }
+  VectorIterator &operator-=(difference_type n) {
+    ptr -= n;
+    return *this;
+  }
+
+  VectorIterator operator+(difference_type n) const {
+    return VectorIterator(ptr + n);
+  }
+  VectorIterator operator-(difference_type n) const {
+    return VectorIterator(ptr - n);
+  }
+
+  difference_type operator-(const VectorIterator &other) const {
+    return ptr - other.ptr;
+  }
+
+  bool operator==(const VectorIterator &other) const {
+    return ptr == other.ptr;
+  }
+  bool operator!=(const VectorIterator &other) const {
+    return ptr != other.ptr;
+  }
+  bool operator<(const VectorIterator &other) const { return ptr < other.ptr; }
+  bool operator>(const VectorIterator &other) const { return ptr > other.ptr; }
+  bool operator<=(const VectorIterator &other) const {
+    return ptr <= other.ptr;
+  }
+  bool operator>=(const VectorIterator &other) const {
+    return ptr >= other.ptr;
+  }
+
+ private:
+  pointer ptr;
+};
+
+
+template <typename T, typename Allocator>
+class VectorConstIterator {
+ public:
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = T;
+  using difference_type = std::ptrdiff_t;
+  using pointer = const typename std::allocator_traits<Allocator>::pointer;
+  using reference = const T &;
+
+  VectorConstIterator() : ptr(nullptr) {}
+  VectorConstIterator(pointer p) : ptr(p) {}
+
+  reference operator*() const { return *ptr; }
+  pointer operator->() const { return ptr; }
+
+  VectorConstIterator &operator++() {
+    ++ptr;
+    return *this;
+  }
+  VectorConstIterator operator++(int) {
+    VectorConstIterator tmp = *this;
+    ++ptr;
+    return tmp;
+  }
+
+  VectorConstIterator &operator--() {
+    --ptr;
+    return *this;
+  }
+  VectorConstIterator operator--(int) {
+    VectorConstIterator tmp = *this;
+    --ptr;
+    return tmp;
+  }
+
+  VectorConstIterator &operator+=(difference_type n) {
+    ptr += n;
+    return *this;
+  }
+  VectorConstIterator &operator-=(difference_type n) {
+    ptr -= n;
+    return *this;
+  }
+
+  VectorConstIterator operator+(difference_type n) const {
+    return VectorConstIterator(ptr + n);
+  }
+  VectorConstIterator operator-(difference_type n) const {
+    return VectorConstIterator(ptr - n);
+  }
+
+  difference_type operator-(const VectorConstIterator &other) const {
+    return ptr - other.ptr;
+  }
+
+  bool operator==(const VectorConstIterator &other) const {
+    return ptr == other.ptr;
+  }
+  bool operator!=(const VectorConstIterator &other) const {
+    return ptr != other.ptr;
+  }
+  bool operator<(const VectorConstIterator &other) const {
+    return ptr < other.ptr;
+  }
+  bool operator>(const VectorConstIterator &other) const {
+    return ptr > other.ptr;
+  }
+  bool operator<=(const VectorConstIterator &other) const {
+    return ptr <= other.ptr;
+  }
+  bool operator>=(const VectorConstIterator &other) const {
+    return ptr >= other.ptr;
+  }
+
+ private:
+  pointer ptr;
+};
+}
+
 template <typename T, typename Allocator = std::allocator<T>>
 class s21_vector {
  public:
-  class VectorIterator;
-  class VectorConstIterator;
   using value_type = T;
   using reference = value_type &;
   using const_reference = const value_type &;
-  using iterator = typename s21_vector<T>::VectorIterator;
-  using const_iterator = const typename s21_vector<T>::VectorIterator;
+  using iterator = __iterator::VectorIterator<T, Allocator>;
+  using const_iterator = const __iterator::VectorIterator<T, Allocator>;
   using size_type = size_t;
   using allocator_type = Allocator;
   using Allocator_Traits = std::allocator_traits<Allocator>;
-  using Iterator_Traits =
-      std::iterator_traits<typename s21_vector<T>::VectorIterator>;
   using pointer = typename std::allocator_traits<Allocator>::pointer;
   using const_pointer =
       typename std::allocator_traits<Allocator>::const_pointer;
@@ -95,6 +247,7 @@ class s21_vector {
     return std::numeric_limits<std::size_t>::max() / sizeof(value_type);
   }
 
+  // iterator begin() { return iterator(_array); }
   iterator begin() { return iterator(_array); }
   const_iterator cbegin() { return const_iterator(_array); }
   iterator end() { return iterator(_array + _size); }
@@ -298,5 +451,4 @@ class s21_vector {
 };
 
 }  // namespace s21_containers
-#include "s21_vector_iterator.h"
 #endif  // _CONTAINERS_S21_VECTOR_H
