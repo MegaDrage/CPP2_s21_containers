@@ -8,7 +8,7 @@ VECTOR_TEST_SRC=tests/vector_test.cpp
 all:
 
 vector-test:
-	$(CC) -g $(VECTOR_TEST_SRC) -lgtest -o vector-test.out
+	$(CC) -g $(SANITIZER_FLAGS) $(VECTOR_TEST_SRC) -lgtest -o vector-test.out
 
 style-check:
 	find . -name "*.cpp" -o -name "*.h" | xargs clang-format -n -verbose -Werror --style=Google

@@ -10,8 +10,9 @@
 #include <utility>
 
 namespace s21_containers {
-template <typename T, typename Allocator = std::allocator<T>> class s21_vector {
-public:
+template <typename T, typename Allocator = std::allocator<T>>
+class s21_vector {
+ public:
   class VectorIterator;
   class VectorConstIterator;
   using value_type = T;
@@ -46,7 +47,8 @@ public:
 
   s21_vector(std::initializer_list<value_type> const &items)
       : _array(Allocator_Traits::allocate(_alloc, items.size())),
-        _size(items.size()), _capacity(items.size()) {
+        _size(items.size()),
+        _capacity(items.size()) {
     size_type i = 0;
     for (auto begin = items.begin(), end = items.end(); begin != end;
          ++begin, ++i) {
@@ -55,7 +57,8 @@ public:
   }
 
   s21_vector(const s21_vector &v)
-      : _array(Allocator_Traits::allocate(_alloc, v._capacity)), _size(v._size),
+      : _array(Allocator_Traits::allocate(_alloc, v._capacity)),
+        _size(v._size),
         _capacity(v._capacity) {
     for (size_t i = 0; i < _size; ++i) {
       _place_into_memory(_array + i, *(v._array + i));
@@ -63,7 +66,9 @@ public:
   }
 
   s21_vector(s21_vector &&v)
-      : _array(v._array), _size(v._size), _capacity(v._capacity),
+      : _array(v._array),
+        _size(v._size),
+        _capacity(v._capacity),
         _alloc(std::move(v._alloc)) {
     v._array = nullptr;
     v._size = 0;
@@ -196,7 +201,8 @@ public:
     return begin() + index;
   }
 
-  template <typename... Args> void emplace_back(Args &&...args) {
+  template <typename... Args>
+  void emplace_back(Args &&...args) {
     if (_capacity <= _size) {
       _reserve_n_emplace_back((_capacity == 0) ? 1 : _capacity * 2,
                               std::forward<Args>(args)...);
@@ -228,7 +234,7 @@ public:
 
   bool empty() const noexcept { return _size == 0; }
 
-private:
+ private:
   pointer _array;
   size_type _size;
   size_type _capacity;
@@ -291,6 +297,6 @@ private:
   }
 };
 
-} // namespace s21_containers
+}  // namespace s21_containers
 #include "s21_vector_iterator.h"
-#endif // _CONTAINERS_S21_VECTOR_H
+#endif  // _CONTAINERS_S21_VECTOR_H

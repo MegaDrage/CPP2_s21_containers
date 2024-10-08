@@ -50,12 +50,12 @@ TEST(s21_vectorTest, SizeConstructorNotTrivial4) {
 
 TEST(s21_vectorTest, SizeConstructorNotTrivial5) {
   class s21_test_class {
-  public:
+   public:
     s21_test_class() = default;
     s21_test_class(const s21_test_class &other) = delete;
     s21_test_class(s21_test_class &&other) = delete;
 
-  private:
+   private:
     int x;
   };
   s21_vector<s21_test_class> vec(5);
@@ -424,7 +424,6 @@ TEST(s21_vectorTest, emplaceTest2) {
   p.emplace(pointer, p[0]);
   EXPECT_EQ(p[0], p[1]);
 }
-
 
 TEST(s21_vectorTest, emplaceTest3) {
   s21_vector<std::string> p;

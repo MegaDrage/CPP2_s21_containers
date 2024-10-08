@@ -1,12 +1,13 @@
 #ifndef _CONTAINERS_S21_VECTOR_ITERATOR_H
 #define _CONTAINERS_S21_VECTOR_ITERATOR_H
 #include <iterator>
+
 #include "s21_vector.h"
 
 namespace s21_containers {
 template <typename T, typename Allocator>
 class s21_vector<T, Allocator>::VectorIterator {
-public:
+ public:
   using iterator_category = std::random_access_iterator_tag;
   using value_type = T;
   using difference_type = std::ptrdiff_t;
@@ -74,13 +75,13 @@ public:
     return ptr >= other.ptr;
   }
 
-private:
+ private:
   pointer ptr;
 };
 
 template <typename T, typename Allocator>
 class s21_vector<T, Allocator>::VectorConstIterator {
-public:
+ public:
   using iterator_category = std::random_access_iterator_tag;
   using value_type = T;
   using difference_type = std::ptrdiff_t;
@@ -152,10 +153,10 @@ public:
     return ptr >= other.ptr;
   }
 
-private:
+ private:
   pointer ptr;
 };
 
-} // namespace s21_containers
+}  // namespace s21_containers
 
-#endif // _CONTAINERS_S21_VECTOR_ITERATOR_H
+#endif  // _CONTAINERS_S21_VECTOR_ITERATOR_H
