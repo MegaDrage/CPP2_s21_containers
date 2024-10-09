@@ -24,6 +24,7 @@
               gtest
               lcov
               pkg-config
+              valgrind
             ] ++ (if system == "aarch64-darwin" then [ ] else [ gdb ]);
           };
       });
