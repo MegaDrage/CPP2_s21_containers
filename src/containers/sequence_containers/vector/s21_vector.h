@@ -86,7 +86,6 @@ class VectorIterator {
   pointer ptr;
 };
 
-
 template <typename T, typename Allocator>
 class VectorConstIterator {
  public:
@@ -164,7 +163,7 @@ class VectorConstIterator {
  private:
   pointer ptr;
 };
-}
+}  // namespace __iterator
 
 template <typename T, typename Allocator = std::allocator<T>>
 class s21_vector {
