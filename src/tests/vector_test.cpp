@@ -489,7 +489,7 @@ TEST(s21_vectorTest, shrink_to_fitTest) {
   p.push_back(20);
   p.push_back(30);
   p.push_back(40);
-  auto pointer = p.begin();
+  s21_vector<int>::iterator pointer = p.begin();
   pointer++;
   p.emplace(pointer, p[0]);
   p.shrink_to_fit();
