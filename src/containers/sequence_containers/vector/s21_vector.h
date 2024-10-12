@@ -2,12 +2,10 @@
 #define _CONTAINERS_S21_VECTOR_H
 
 #include <algorithm>
-#include <cstddef>
 #include <initializer_list>
 #include <limits>
 #include <memory>
 #include <stdexcept>
-#include <utility>
 
 namespace s21_containers {
 
@@ -275,6 +273,9 @@ class s21_vector {
   const T *data() const { return _array; }
 
   void reserve(size_type size) {
+    if (size <= _capacity) {
+      return;
+    }
     pointer newarr = Allocator_Traits::allocate(_alloc, size);
     _move_n(newarr, size);
   }
