@@ -159,6 +159,254 @@ TEST(s21_list, pop_front_all) {
   EXPECT_EQ(list.size(), list1.size());
 }
 
+TEST(s21_list, eraseTestOnBegin) {
+  s21_list<std::string> list;
+  std::list<std::string> list1;
+  list.push_back("10");
+  list.push_back("20");
+  list.push_back("30");
+  list1.push_back("10");
+  list1.push_back("20");
+  list1.push_back("30");
+  EXPECT_EQ(*list1.erase(list1.begin()), *list.erase(list.begin()));
+  EXPECT_EQ(*list1.erase(list1.begin()), *list.erase(list.begin()));
+  list1.erase(list1.begin());
+  list.erase(list.begin());
+  list.push_back("20");
+  list1.push_back("20");
+  EXPECT_EQ(*list1.begin(), *list.begin());
+}
+
+TEST(s21_list, eraseTestOnEnd) {
+  s21_list<std::string> list;
+  std::list<std::string> list1;
+  list.push_back("10");
+  list.push_back("20");
+  list.push_back("30");
+  list1.push_back("10");
+  list1.push_back("20");
+  list1.push_back("30");
+  list1.erase(--list1.end());
+  list.erase(--list.end());
+  list1.erase(--list1.end());
+  list.erase(--list.end());
+  list1.erase(--list1.end());
+  list.erase(--list.end());
+  EXPECT_EQ(list1.size(), list.size());
+}
+
+TEST(s21_list, swapTest) {
+  s21_list<std::string> list{"10", "20", "30", "40"};
+  s21_list<std::string> list2{"40", "30", "20", "10", "0"};
+  std::list<std::string> list1{"10", "20", "30", "40"};
+  std::list<std::string> list3{"40", "30", "20", "10", "0"};
+  list.swap(list2);
+  list1.swap(list3);
+  auto fit = list1.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++it, ++fit) {
+    EXPECT_EQ(*it, *fit);
+  }
+  EXPECT_EQ(list.size(), list1.size());
+  fit = list3.begin();
+  for (auto it = list2.begin(), eit = list2.end(); it != eit; ++it, ++fit) {
+    EXPECT_EQ(*it, *fit);
+  }
+  EXPECT_EQ(list2.size(), list3.size());
+}
+
+TEST(s21_list, swapTest2) {
+  s21_list<std::string> list{"10", "20", "30", "40"};
+  s21_list<std::string> list2;
+  std::list<std::string> list1{"10", "20", "30", "40"};
+  std::list<std::string> list3;
+  list.swap(list2);
+  list1.swap(list3);
+  EXPECT_TRUE(list.begin() == list.end());
+  EXPECT_TRUE(list1.begin() == list1.end());
+  auto fit = list3.begin();
+  for (auto it = list2.begin(), eit = list2.end(); it != eit; ++it, ++fit) {
+    EXPECT_EQ(*it, *fit);
+  }
+  EXPECT_EQ(list2.size(), list3.size());
+}
+
+TEST(s21_list, swapTest3) {
+  s21_list<std::string> list;
+  s21_list<std::string> list2{"10", "20", "30", "40"};
+  std::list<std::string> list1;
+  std::list<std::string> list3{"10", "20", "30", "40"};
+  list.swap(list2);
+  list1.swap(list3);
+  EXPECT_TRUE(list2.begin() == list2.end());
+  EXPECT_TRUE(list3.begin() == list3.end());
+  auto fit = list1.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++it, ++fit) {
+    EXPECT_EQ(*it, *fit);
+  }
+  EXPECT_EQ(list2.size(), list3.size());
+}
+
+TEST(s21_list, swapTest4) {
+  s21_list<std::string> list;
+  s21_list<std::string> list2;
+  std::list<std::string> list1;
+  std::list<std::string> list3;
+  list.swap(list2);
+  list1.swap(list3);
+  EXPECT_TRUE(list2.begin() == list2.end());
+  EXPECT_TRUE(list3.begin() == list3.end());
+  EXPECT_EQ(list2.size(), list3.size());
+}
+
+TEST(s21_list, spliceTest) {
+  s21_list<int> list{1, 2, 3, 4};
+  s21_list<int> list1{4, 3, 2, 1};
+  std::list<int> list2{1, 2, 3, 4};
+  std::list<int> list3{4, 3, 2, 1};
+  list.splice(list.begin(), list1);
+  list2.splice(list2.begin(), list3);
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest1) {
+  s21_list<int> list{1, 2, 3, 4};
+  s21_list<int> list1{4, 3, 2, 1};
+  std::list<int> list2{1, 2, 3, 4};
+  std::list<int> list3{4, 3, 2, 1};
+  list.splice(list.end(), list1);
+  list2.splice(list2.end(), list3);
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest2) {
+  s21_list<int> list;
+  s21_list<int> list1{4, 3, 2, 1};
+  std::list<int> list2;
+  std::list<int> list3{4, 3, 2, 1};
+  list.splice(list.end(), list1);
+  list2.splice(list2.end(), list3);
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest3) {
+  s21_list<std::string> list;
+  s21_list<std::string> list1{"4", "3", "2", "1"};
+  std::list<std::string> list2;
+  std::list<std::string> list3{"4", "3", "2", "1"};
+  list.splice(list.begin(), list1);
+  list2.splice(list2.begin(), list3);
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest4) {
+  s21_list<std::string> list;
+  s21_list<std::string> list1{"4", "3", "2", "1"};
+  std::list<std::string> list2;
+  std::list<std::string> list3{"4", "3", "2", "1"};
+  list.splice(list.begin(), list1, list1.begin());
+  list2.splice(list2.begin(), list3, list3.begin());
+  EXPECT_EQ(list.size(), list2.size());
+  EXPECT_EQ(list1.size(), list3.size());
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest5) {
+  s21_list<std::string> list;
+  s21_list<std::string> list1{"4", "3", "2", "1"};
+  std::list<std::string> list2;
+  std::list<std::string> list3{"4", "3", "2", "1"};
+  list.splice(list.end(), list1, list1.begin());
+  list2.splice(list2.end(), list3, list3.begin());
+  EXPECT_EQ(list.size(), list2.size());
+  EXPECT_EQ(list1.size(), list3.size());
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest6) {
+  s21_list<std::string> list;
+  s21_list<std::string> list1{"4", "3", "2", "1"};
+  std::list<std::string> list2;
+  std::list<std::string> list3{"4", "3", "2", "1"};
+  list.splice(list.end(), list1, --list1.end());
+  list2.splice(list2.end(), list3, --list3.end());
+  EXPECT_EQ(list.size(), list2.size());
+  EXPECT_EQ(list1.size(), list3.size());
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest7) {
+  s21_list<std::string> list;
+  s21_list<std::string> list1{"4", "3", "2", "1"};
+  std::list<std::string> list2;
+  std::list<std::string> list3{"4", "3", "2", "1"};
+  list.splice(--list.end(), list1, ++(++list1.end()));
+  list2.splice(--list2.end(), list3, ++(++list3.end()));
+  EXPECT_EQ(list.size(), list2.size());
+  EXPECT_EQ(list1.size(), list3.size());
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest8) {
+  s21_list<std::string> list{"1", "2", "3", "4"};
+  std::list<std::string> list2{"1", "2", "3", "4"};
+  list.splice(list.end(), list, ++list.end());
+  list2.splice(list2.end(), list2, ++list2.end());
+  EXPECT_EQ(list.size(), list2.size());
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+TEST(s21_list, spliceTest9) {
+  s21_list<std::string> list{"1", "2", "3", "4"};
+  std::list<std::string> list2{"1", "2", "3", "4"};
+  list.splice(list.begin(), list, ++list.end());
+  list2.splice(list2.begin(), list2, ++list2.end());
+  EXPECT_EQ(list.size(), list2.size());
+  auto sit = list2.begin();
+  for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+    EXPECT_EQ(*it, *sit);
+  }
+}
+
+// TEST(s21_list, mergeTest) {
+//   s21_list<std::string> list{"1", "2", "3", "4"};
+//   s21_list<std::string> list1{"4", "3", "2", "1"};
+//   std::list<std::string> list2{"1", "2", "3", "4"};
+//   std::list<std::string> list3{"4", "3", "2", "1"};
+//   list.merge(list1);
+//   list2.merge(list3);
+//   auto sit = list2.begin();
+//   for (auto it = list.begin(), eit = list.end(); it != eit; ++sit, ++it) {
+//     EXPECT_EQ(*it, *sit);
+//   }
+// }
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
