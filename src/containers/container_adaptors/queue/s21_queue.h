@@ -42,21 +42,21 @@ class s21_queue {
 
   ~s21_queue() {}
 
-  reference front() { _container.front(); }
+  reference front() { return _container.front(); }
 
-  const_reference front() const { _container.front(); }
+  const_reference front() const { return _container.front(); }
 
-  reference back() { _container.back(); }
+  reference back() { return _container.back(); }
 
-  const_reference back() const { _container.back(); }
+  const_reference back() const { return _container.back(); }
 
-  bool empty() const { _container.empty(); }
+  bool empty() const { return _container.empty(); }
 
-  size_type size() const { _container.size(); }
+  size_type size() const { return _container.size(); }
 
   template <class... Args>
   decltype(auto) emplace(Args&&... args) {
-    _container.emplace(std::forward<Args>(args)...);
+    return _container.emplace_back(std::forward<Args>(args)...);
   }
   void push(const value_type& value) { _container.push_back(value); }
 
