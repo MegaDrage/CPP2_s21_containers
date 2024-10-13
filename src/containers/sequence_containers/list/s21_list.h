@@ -2,8 +2,10 @@
 #define _CONTAINERS_S21_LIST_H
 
 #include <algorithm>
+#include <cstddef>
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <utility>
@@ -16,19 +18,18 @@ struct _List_Node_Base {
 
   _List_Node_Base() = default;
 
-  static void _N_hook(_List_Node_Base*& first, _List_Node_Base*& second) {
+  static void _N_hook(_List_Node_Base*& first,
+                      _List_Node_Base*& second) noexcept {
     first->next = second;
     second->prev = first;
   }
-  static void _N_insert_hook(_List_Node_Base*& first,
-                             _List_Node_Base*& second) {
-    // first->prev = second->prev;
-    // first->next = second;
-    // second->prev->next = first;
-    // second->prev = first;
-    _N_hook(second->prev, first);
+  static void _N_transfer(_List_Node_Base*& first, _List_Node_Base*& second,
+                          _List_Node_Base*& third) noexcept {
     _N_hook(first, second);
+    _N_hook(third, first->prev);
   }
+
+  void _N_reverse() noexcept { std::swap(prev, next); }
 };
 template <typename _Tp>
 struct _List_Node : public _List_Node_Base {
@@ -271,10 +272,8 @@ class s21_list {
     if (!other.empty()) {
       _size += other._size;
       iterator it(pos._M_const_cast());
-      other._fakeNode.prev->next = it._ptr;
-      other._fakeNode.next->prev = it._ptr->prev;
-      it._ptr->prev->next = other._fakeNode.next;
-      it._ptr->prev = other._fakeNode.prev;
+      NodeBase::_N_hook(it._ptr->prev, other._fakeNode.next);
+      NodeBase::_N_hook(other._fakeNode.prev, it._ptr);
       _init_node(other._fakeNode);
       other._size = 0;
     }
@@ -282,18 +281,30 @@ class s21_list {
 
   void splice(const_iterator pos, s21_list& other, const_iterator it) {
     if (pos != it) {
-      iterator fit(pos._M_const_cast());
-      iterator sit(it._M_const_cast());
-      NodeBase::_N_hook(sit._ptr->prev, sit._ptr->next);
+      iterator pos_it(pos._M_const_cast());
+      iterator other_list_it(it._M_const_cast());
+      NodeBase::_N_hook(other_list_it._ptr->prev, other_list_it._ptr->next);
       --other._size;
-      NodeBase::_N_hook(fit._ptr->prev, sit._ptr);
-      NodeBase::_N_hook(sit._ptr, fit._ptr);
+      NodeBase::_N_hook(pos_it._ptr->prev, other_list_it._ptr);
+      NodeBase::_N_hook(other_list_it._ptr, pos_it._ptr);
       ++_size;
     }
   }
 
   void splice(const_iterator pos, s21_list& other, const_iterator first,
-              const_iterator last) {}
+              const_iterator last) {
+    if (first == last) return;
+    size_type diff = std::distance(first, last);
+    _size += diff;
+    other._size -= diff;
+    iterator pos_it(pos._M_const_cast());
+    iterator other_list_fit(first._M_const_cast());
+    iterator other_list_lit(last._M_const_cast());
+    NodeBase::_N_hook(other_list_fit._ptr->prev, other_list_lit._ptr);
+    NodeBase::_N_hook(other_list_lit._ptr->prev, pos_it._ptr);
+    NodeBase::_N_hook(pos_it._ptr->prev, other_list_fit._ptr);
+    NodeBase::_N_hook(other_list_lit._ptr->prev, other_list_fit._ptr);
+  }
 
   template <typename Compare>
   void merge(s21_list& other, Compare comp) {
@@ -301,10 +312,10 @@ class s21_list {
       return;
     }
 
-    auto it1 = begin();
-    auto it2 = other.begin();
-    auto end1 = end();
-    auto end2 = other.end();
+    iterator it1 = begin();
+    iterator it2 = other.begin();
+    iterator end1 = end();
+    iterator end2 = other.end();
 
     while (it1 != end1 && it2 != end2) {
       if (comp(*it2, *it1)) {
@@ -320,13 +331,88 @@ class s21_list {
     if (it2 != end2) {
       splice(end1, other, it2, end2);
     }
-
-    other.clear();
   }
 
   void merge(s21_list& other) { merge(other, std::less<value_type>()); }
 
-  // void merge(s21_list&& other) {}
+  void reverse() noexcept {
+    if (!empty()) {
+      iterator current = begin();
+      iterator end1 = end();
+      _fakeNode._N_reverse();
+      while (current != end1) {
+        current._ptr->_N_reverse();
+        --current;
+      }
+    }
+  }
+
+  void unique() {
+    if (!empty()) {
+      iterator it = begin();
+      iterator next = it;
+      ++next;
+
+      while (next != end()) {
+        if (*it == *next) {
+          next = erase(next);
+        } else {
+          it = next;
+          ++next;
+        }
+      }
+    }
+  }
+
+  void sort() { sort(std::less<value_type>()); }
+
+  template <typename Compare>
+  void sort(Compare comp) {
+    if (size() <= 1) return;
+
+    s21_list<T, Allocator> carry;
+    s21_list<T, Allocator> tmp[64];
+    s21_list<T, Allocator>* fill = tmp;
+    s21_list<T, Allocator>* counter;
+
+    do {
+      carry.splice(carry.begin(), *this, begin());
+
+      for (counter = tmp; counter != fill && !counter->empty(); ++counter) {
+        counter->merge(carry, comp);
+        carry.swap(*counter);
+      }
+
+      carry.swap(*counter);
+
+      if (counter == fill) {
+        ++fill;
+      }
+    } while (!empty());
+
+    for (counter = tmp + 1; counter != fill; ++counter) {
+      counter->merge(*(counter - 1), comp);
+    }
+
+    swap(*(fill - 1));
+    // if (size() <= 1) return;
+    //
+    // iterator middle = begin();
+    // for (size_type i = 0; i < size() / 2; ++i) {
+    //     ++middle;
+    // }
+    //
+    // s21_list<T, Allocator> leftHalf;
+    // leftHalf.splice(leftHalf.begin(), *this, begin(), middle);
+    // leftHalf.sort(comp);
+    //
+    // s21_list<T, Allocator> rightHalf;
+    // rightHalf.splice(rightHalf.begin(), *this, begin(), end());
+    // rightHalf.sort(comp);
+    //
+    // merge(leftHalf, comp);
+    // merge(rightHalf, comp);
+  }
 
   template <typename... Args>
   reference emplace_front(Args&&... args) {
